@@ -63,6 +63,10 @@ public class LinkedHashSet<E> implements Set<E> {
         }
     }
 
+    public Node_2<E> get() {
+        return head;
+    }
+
     /**
      * 새로운 데이터를 추가하는 메서드
      * @param e
@@ -255,6 +259,15 @@ public class LinkedHashSet<E> implements Set<E> {
     @Override
     public int size() {
         return size;
+    }
+
+    public void clear() {
+        if (table != null && size > 0) {
+            for (int i = 0; i < table.length; i++) {
+                table[i] = null;
+            }
+            size = 0;
+        }
     }
 
     @Override

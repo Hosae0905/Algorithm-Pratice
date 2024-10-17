@@ -149,7 +149,8 @@ public class HashSet<E> implements Set<E> {
     /**
      * HashSet에서 요소를 삭제하는 메서드
      * @param o Set에서 삭제할 요소
-     * @return
+     * @return {@code true} HashSet에서 요소를 삭제할 경우,
+     *          else, {@code false} 요소가 없어서 삭제하지 못한 경우
      */
     @Override
     public boolean remove(Object o) {
@@ -159,40 +160,46 @@ public class HashSet<E> implements Set<E> {
     /**
      * HashSet에서 요소를 삭제하는 메서드
      * @param hash 보조 해시 값
-     * @param key 추가할 요소
-     * @return
+     * @param key 삭제할 요소
+     * @return 삭제할 요소
      */
     private Object remove(int hash, Object key) {
-        int index = hash % table.length;
+        int index = hash % table.length;    // 삭제할 요소의 인덱스 값
 
-        Node_1<E> node = table[index];
-        Node_1<E> removedNode = null;
-        Node_1<E> prev = null;
+        Node_1<E> node = table[index];      // 삭제할 요소의 인덱스에 위치한 노드
+        Node_1<E> removedNode = null;       // 삭제할 요소를 저장할 임시 노드
+        Node_1<E> prev = null;              // 삭제할 요소의 이전 노드
 
+        // 만약 삭제할 노드가 없으면(HashSet에 데이터가 없는 경우) null을 반환
         if (node == null) {
             return null;
         }
 
+        // 삭제할 노드가 있는 경우
         while (node != null) {
-            if (node.hash == hash && (node.key == key || node.key.equals(key))) {
-                removedNode = node;
 
+            // 삭제할 노드를 찾았을 경우
+            if (node.hash == hash && (node.key == key || node.key.equals(key))) {
+                removedNode = node;     // 삭제할 노드를 저장
+
+                // 해당 노드의 이전 노드가 존재하지 않을 경우(가장 앞에 있는 노드일 경우)
                 if (prev == null) {
-                    table[index] = node.next;
-                    node = null;
-                } else {
+                    table[index] = node.next;       // 삭제할 노드의 다음 노드를 인덱스 위치에 저장
+                    node = null;                    // 삭제할 노드에 null을 저장(GC)
+                } else {        // 이전 노드가 존재할 경우 이전 노드의 next를 삭제할 노드의 다음 노드와 연결
                     prev.next = node.next;
-                    node = null;
+                    node = null;        // 삭제할 노드에 null을 저장(GC)
                 }
 
-                size--;
-                break;
+                size--;     // 요소를 삭제했기 때문에 HashSet의 요소 개수를 하나 감소
+                break;      // 삭제가 완료되었기 때문에 break
             }
 
-            prev = node;
-            node = node.next;
+            prev = node;        // 이전 노드에 현재 노드를 저장
+            node = node.next;   // 현재 노드는 다음 노드를 저장
         }
 
+        // 삭제한 요소를 반환
         return removedNode;
     }
 
@@ -207,13 +214,20 @@ public class HashSet<E> implements Set<E> {
         int index = hash(o) % table.length;
         Node_1<E> temp = table[index];
 
+        /*
+         * 확인할 요소와 같은 내용인지 확인한다.
+         * 같은 내용인지만 확인하기 때문에 해시 값은 따로 비교하지 않는다.
+         * 확인할 요소가 null이 아닌지는 확인해야 한다.
+         */
         while (temp != null) {
+            // 만약 확인할 요소와 동일한게 있다면 true를 반환해준다.
             if (o == temp.key || (o != null && (o.equals(temp.key)))) {
                 return true;
             }
-            temp = temp.next;
+            temp = temp.next;       // 없다면 다음 요소를 temp에 저장하고 반복문을 돈다.
         }
 
+        // HashSet에 있는 모든 요소를 순회했을때 찾고자 하는 요소가 없다면 false를 반환해준다.
         return false;
     }
 
@@ -236,27 +250,63 @@ public class HashSet<E> implements Set<E> {
         return size;
     }
 
+    /**
+     * HashSet을 모두 비우는 메서드
+     */
+    public void clear() {
+        if (table != null && size > 0) {
+            for (int i = 0; i < table.length; i++) {
+                table[i] = null;
+            }
+            size = 0;
+        }
+    }
+
+    /**
+     * 객체를 비교할 메서드
+     * @param o HashSet과 비교할 객체
+     * @return {@code true} 비교할 객체와 동일한 경우,
+     *          else, {@code false} 동일하지 않을 경우
+     */
     @Override
     public boolean equals(Object o) {
+
+        // 만약 비교할 객체가 현재 객체와 동일하다면 true를 반환
         if (o == this) {
             return true;
         }
 
+        // 만약 비교할 객체가 HashSet이 아니라면 false를 반환
         if (!(o instanceof HashSet)) {
             return false;
         }
 
-        HashSet<E> oSet;
+        HashSet<E> oSet;        // 비교할 객체를 담을 임시 변수
 
+        /*
+         * HashSet과 비교를 위해 Object를 HashSet<E>로 캐스팅을 진행한다.
+         * 만약 캐스팅이 불가능할 경우 ClassCastException이 발생한다.
+         */
         try {
+
+            // HashSet<E>로 타입 캐스팅
             oSet = (HashSet<E>) o;
+
+            // 사이즈가 다르면 동일한 객체가 아니므로 false를 반환
             if (oSet.size() != size) {
                 return false;
             }
 
             for (int i = 0; i < oSet.table.length; i++) {
                 Node_1<E> oTable = oSet.table[i];
+
+                /*
+                 * 서로 다른 Capacity를 가질 수 있기 때문에 index에 연결된 요소들을 비교하는 것이 아닌
+                 * contains로 존재 여부를 확인한다.
+                 * equals는 값이 동일한지 비교하는 메서드이기 때문에 내용이 같다면 동일한 객체라고 본다.
+                 */
                 while (oTable != null) {
+                    // HashSet에 포함되지 않을 경우 내용이 다르기 때문에 false를 반환한다.
                     if (!contains(oTable)) {
                         return false;
                     }
@@ -268,6 +318,7 @@ public class HashSet<E> implements Set<E> {
             return false;
         }
 
+        // 위의 모든 과정을 거쳤는데 아무 문제가 없다면 동일한 객체이기 때문에 true를 반환한다.
         return true;
     }
 }
