@@ -1,5 +1,9 @@
 package data_structure.set;
 
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.TreeSet;
+
 /**
  * 출처 : https://st-lab.tistory.com/240
  */
@@ -80,6 +84,35 @@ public class Ex_1 {
             }
 
             node = node.nextLink;
+        }
+        System.out.println();
+        System.out.println("==========================================");
+
+        TreeSet<Set_Test_1> treeSet = new TreeSet<>(new Comparator<Set_Test_1>() {
+            @Override
+            public int compare(Set_Test_1 o1, Set_Test_1 o2) {
+                if (o1.age == o2.age) {
+                    return o1.name.compareTo(o2.name);
+                } else {
+                    return o1.age - o2.age;
+                }
+            }
+        });
+
+        Set_Test_1 treeTest_1 = new Set_Test_1("aaa", 10);
+        Set_Test_1 treeTest_2 = new Set_Test_1("bbb", 20);
+        Set_Test_1 treeTest_3 = new Set_Test_1("ccc", 60);
+        Set_Test_1 treeTest_4 = new Set_Test_1("eee", 30);
+        Set_Test_1 treeTest_5 = new Set_Test_1("aaa", 20);
+
+        treeSet.add(treeTest_1);
+        treeSet.add(treeTest_2);
+        treeSet.add(treeTest_3);
+        treeSet.add(treeTest_4);
+        treeSet.add(treeTest_5);
+
+        for (Set_Test_1 setTest1 : treeSet) {
+            System.out.println(setTest1);
         }
     }
 }
